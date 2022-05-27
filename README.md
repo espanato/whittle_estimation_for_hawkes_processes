@@ -17,10 +17,12 @@ For the R code you will need to install the "hawkesbow" package via the followin
 
 ## Citation
 
-This code is part of the work of fours students of CentraleSupélec university: Clément Simon, Tomas España, Yecine Ktari, Ameur Echaabi. 
+This code is part of the work of four students of CentraleSupélec university: Clément Simon, Tomas España, Yecine Ktari, Ameur Echaabi. 
 
 [1] Yannick Bessy-Rol and Alice Launay. Modélisation du risque terroriste par les processus de hawkes. 2017.
+
 [2] Felix Cheysson. “hawkesbow”. https ://github.com/fcheysson/hawkesbow.
+
 [3] Stephane Gaiffas Maryan Morel Søren Vinther Poulsen. Emmanuel Bacry, Martin Bompaire. “tick.hawkes”.
 https ://x-datainitiative.github.io/tick/modules/hawkes.html.
 [4] Gabriel Lang Felix Cheysson. Strong-mixing rates for hawkes processes and application to whittle estimation from count data. 2021.
