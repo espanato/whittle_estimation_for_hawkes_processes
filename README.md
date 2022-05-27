@@ -11,8 +11,8 @@ For the C++ implementation you will need the following dependencies:
 - [Armadillo 11.1.1](http://arma.sourceforge.net/download.html)
 - [Alglib 3.18.0](https://www.alglib.net/download.php)
 
-For the R code you will need to install the "hawkesbow" package via the following command in an R terminal:
-install.packages("hawkesbow")
+For the R code you will need to install the "hawkesbow" package via the following command in your R terminal:
+- install.packages("hawkesbow")
 
 
 ## Citation
