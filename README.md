@@ -12,4 +12,4 @@ For the C++ implementation you will need the following dependencies:
 
 ## Citation
 
-This code is part of our work The Whittle estimation for Hawkes processes.
+This code is part of our work: The Whittle estimation for Hawkes processes.
