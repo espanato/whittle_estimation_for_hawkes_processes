@@ -1,9 +1,10 @@
 # Whittle Estimation for Hawkes Processes
 
-This repository contains three files:
+This repository contains the following files:
 - A Jupyter notebook for the implementation of the Whittle estimation in Python with some time execution graphs
 - The R code used to compute the execution times  
 - The C++ implementation of the Whittle estimation
+- Our report
 
 ## Dependencies
 
