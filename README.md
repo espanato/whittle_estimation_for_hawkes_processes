@@ -25,15 +25,22 @@ This code is part of the work of four students of CentraleSupélec university: C
 
 [3] Stephane Gaiffas Maryan Morel Søren Vinther Poulsen. Emmanuel Bacry, Martin Bompaire. “tick.hawkes”.
 https ://x-datainitiative.github.io/tick/modules/hawkes.html.
+
 [4] Gabriel Lang Felix Cheysson. Strong-mixing rates for hawkes processes and application to whittle estimation from count data. 2021.
+
 [5] Riadh Zaatour José Da Fonseca. Hawkes process : Fast calibration, application to trade clustering and
 diffusive limit. 2013.
+
 [6] Mehdi Lallouache and Damien Challet. The limits of statistical significance of hawkes processes fitted to
 financial data. 2015.
+
 [7] Patrick Laub. Hawkes processes : Simulation, estimation, and validation. 2014.
+
 [8] Ioane Muni Toke and Fabrizio Pomponio. Modelling trades-through in a limit order book using hawkes
 processes. 2012.
+
 [9] D. Sornette V. Filimonov. Quantifying reflexivity in financial markets : Towards a prediction of flash
 crashes. 2012.
+
 [10] Samuel N. Cohen Álvaro Cartea and Saad Labyad. Gradient-based estimation of linear hawkes processes
 with general kernels. 2021.
