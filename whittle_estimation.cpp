@@ -57,7 +57,7 @@ public:
 
 
     arma::vec G(arma::vec xi);    // G(w) = |1-H(w)|^{-2}
-    arma::vec f(arma::vec xi);    // f(w) = m * binsize * sinc²(w/2) * G(w/binsize)
+    arma::vec f(arma::vec xi);    // f(w) = m * binsize * sincï¿½(w/2) * G(w/binsize)
     arma::vec f1(arma::vec xi, int trunc);  // f1(w) = sum_{k=-trunc}^{+trunc} f(w + 2*k*pi)
     arma::cx_vec H(arma::vec xi);
 
@@ -82,7 +82,7 @@ arma::vec Model::G(arma::vec xi) {
     return 1.0 / arma::conv_to<arma::vec>::from(temp % arma::conj(temp));
 }
 
-// f(w) = m * binsize * sinc²(w/2) * G(w/binsize)
+// f(w) = m * binsize * sincï¿½(w/2) * G(w/binsize)
 
 arma::vec Model::f(arma::vec xi) {
     arma::vec term1 = _sinc(.5 * xi);
