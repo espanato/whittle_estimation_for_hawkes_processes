@@ -1,4 +1,4 @@
-# Whittle Estimation for Hawkes Processes
+# The Whittle Estimation for Hawkes Processes
 
 This repository contains the following files:
 - A Jupyter notebook for the implementation of the Whittle estimation in Python with some time execution graphs
