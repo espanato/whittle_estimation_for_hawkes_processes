@@ -178,8 +178,8 @@ for (end in c(100, 200, 400, 800, 1600, 3200)) {
 # We export all the data in a csv file to make the plots in Python
 my_data <- data.frame(l1, l2, l3, l_11, l_21, l_31, l_12, l_22, l_32, mle1, mle2, mle3)
 boxplot <- data.frame(w1, w2, w3, w_11, w_21, w_31, w_12, w_22, w_32, me1, me2, me3, w1b, w2b, w3b, w_11b, w_21b, w_31b, w_12b, w_22b, w_32b, me1b, me2b, me3b)
-write.csv(my_data, "C:\\Users\\etoma\\OneDrive\\Bureau\\Hawkes\\data_mse.csv", , row.names = FALSE)
-write.csv(boxplot, "C:\\Users\\etoma\\OneDrive\\Bureau\\Hawkes\\data_boxplots.csv", , row.names = FALSE)
+write.csv(my_data, "data_mse.csv", , row.names = FALSE)
+write.csv(boxplot, "data_boxplots.csv", , row.names = FALSE)
 
 
 
@@ -298,9 +298,7 @@ print(l)
 
 
 
-
 ########################################## SIMULATIONS for RANDOMIZATION ##########################################
-
 
 randomization <- function(y, binsize) {
   time = numeric()
@@ -319,111 +317,148 @@ randomization <- function(y, binsize) {
   return(time)
 }
 
-N = 500
+N = 200
 end = 1000
-#bins is a list of binsizes from 0.125 to 2 in 0.125 increments
 bins = cbind(0.125, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2)
 
-# results for whittle 
-muw = numeric(length(bins))
-alphaw = numeric(length(bins))
-betaw = numeric(length(bins))
+#Results is a matrix that will contain 500 simulations of the same process of end 1000 
+mu_Results_whittle <- matrix(0, nrow = N, ncol = length(bins))
+mu_Results_mle <- matrix(0, nrow = N, ncol = 1)
+mu_Results_mle_randomization <- matrix(0, nrow = N, ncol = length(bins))
 
-# results for mle_randomized
-mum = numeric(length(bins))
-alpham = numeric(length(bins))
-betam = numeric(length(bins))
+alpha_Results_whittle <- matrix(0, nrow = N, ncol = length(bins))
+alpha_Results_mle <- matrix(0, nrow = N, ncol = 1)
+alpha_Results_mle_randomization <- matrix(0, nrow = N, ncol = length(bins))
 
-# results for mle not randomized
-mumle = numeric(length(bins))
-alphamle = numeric(length(bins))
-betamle = numeric(length(bins))
+beta_Results_whittle <- matrix(0, nrow = N, ncol = length(bins))
+beta_Results_mle <- matrix(0, nrow = N, ncol = 1)
+beta_Results_mle_randomization <- matrix(0, nrow = N, ncol = length(bins))
 
-for (i in 1:length(bins)) {
-  sw = c(0 , 0 , 0)
-  sm = c(0 , 0 , 0)
-  mlem = c(0 , 0 , 0)
+a = c(1,0.5,1)
 
-  for (k in 1:N) {
-    x <- hawkes(end, fun = 1, repr = .5, family = "exp", rate = 1)
-    mle_original <- mle(x$p, "Exponential", x$end)$par
+for (i in 1:N) { #we repeat this experiment 500 times
 
-    y = discrete(x, binsize = bins[i])
-    whi = whittle(y, "exp", binsize = bins[i])
+  x <- hawkes(end, fun = 1, repr = .5, family = "exp", rate = 1) #we generate the process
+
+  mle_original <- mle(x$p, "Exponential", x$end)$par #we get the parameters of the mle
+  
+  mu_Results_mle[i,1] <- (mle_original[1]-a[1])^2 #we compute the squared error 
+  alpha_Results_mle[i,1] <- (mle_original[2]-a[2])^2
+  beta_Results_mle[i,1] <- (mle_original[3]-a[3])^2
+
+  for (bin in bins) { 
+    y <- discrete(x, binsize = bin) 
+    whi = whittle(y, "exp", binsize = bin) #we get the parameters of the whittle
     whi = whi$par
 
-    x_new = randomization(y, bins[i])
-    ml <- mle(x_new, "Exponential", x$end)$par
-    # compute the squared error (absolute value of the difference between the two values squared)
-    for (j in 1:3) {
-      a = c(1,0.5,1)
-      sw[j] = sw[j] + (a[j]- whi[j])^2
-      sm[j] = sm[j] + (a[j]- ml[j])^2
-      mlem[j] = mlem[j] + (a[j]- mle_original[j])^2
-    }
+    x_new = randomization(y, bin)
+    ml <- mle(x_new, "Exponential", x$end)$par #we get the parameters of the mle for the randomization
 
+    mu_Results_whittle[i,which(bins == bin)] <- (whi[1]-a[1])^2 
+    alpha_Results_whittle[i,which(bins == bin)] <- (whi[2]-a[2])^2
+    beta_Results_whittle[i,which(bins == bin)] <- (whi[3]-a[3])^2
+    
+    mu_Results_mle_randomization[i,which(bins == bin)] <- (ml[1]-a[1])^2
+    alpha_Results_mle_randomization[i,which(bins == bin)] <- (ml[2]-a[2])^2
+    beta_Results_mle_randomization[i,which(bins == bin)] <- (ml[3]-a[3])^2
   }
-
-  for (j in 1:3) {
-    sw[j] = sw[j] / N
-    sm[j] = sm[j] / N
-    mlem[j] = mlem[j] / N
-  }
-  # store the results
-  muw[i] = sw[1]
-  alphaw[i] = sw[2]
-  betaw[i] = sw[3]
-
-  mum[i] = sm[1]
-  alpham[i] = sm[2]
-  betam[i] = sm[3]
-
-  mumle[i] = mlem[1]
-  alphamle[i] = mlem[2]
-  betamle[i] = mlem[3]
-
-  print(paste("binsize: ", bins[i]))
+  print(paste("i: ", i, 'out of ', N))
 }
 
-# store the results
-write.table(cbind(muw, mum, mumle), file = "results_randomization_mu.csv", row.names = FALSE, col.names = FALSE)
-write.table(cbind(alphaw, alpham, alphamle), file = "results_randomization_alpha.csv", row.names = FALSE, col.names = FALSE)
-write.table(cbind(betaw, betam, betamle), file = "results_randomization_beta.csv", row.names = FALSE, col.names = FALSE)
+# mu_Results_mle_final is the mean of the 500 simulations of the mle (1x1)
 
-""" PYTHON CODE FOR RENDERING
+mu_Results_mle_final = mean(mu_Results_mle, na.rm = TRUE) 
+mu_Results_mle_final = matrix(1, nrow = length(bins), ncol = 1) * mu_Results_mle_final
+alpha_Results_mle_final = mean(alpha_Results_mle, na.rm = TRUE)
+alpha_Results_mle_final = matrix(1, nrow = length(bins), ncol = 1) * alpha_Results_mle_final
+beta_Results_mle_final = mean(beta_Results_mle, na.rm = TRUE)
+beta_Results_mle_final = matrix(1, nrow = length(bins), ncol = 1) * beta_Results_mle_final
+
+# mu_Results_mle_final_randomization is a column-wise mean of the 500 simulations of the mle (1xlength(bins))
+mu_Results_mle_final_randomization <- colMeans(mu_Results_mle_randomization)
+alpha_Results_mle_final_randomization <- colMeans(alpha_Results_mle_randomization)
+beta_Results_mle_final_randomization <- colMeans(beta_Results_mle_randomization)
+
+
+mu_Results_whittle_final <- colMeans(mu_Results_whittle)
+alpha_Results_whittle_final <- colMeans(alpha_Results_whittle)
+beta_Results_whittle_final <- colMeans(beta_Results_whittle)
+
+print(mu_Results_mle_final)
+print(mu_Results_mle_final_randomization)
+print(mu_Results_whittle_final)
+
+# store it in a file
+write.table(mu_Results_mle_final, file = "Simulation_randomization/mu_Results_mle_final.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(mu_Results_mle_final_randomization, file = "Simulation_randomization/mu_Results_mle_final_randomization.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(mu_Results_whittle_final, file = "Simulation_randomization/mu_Results_whittle_final.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+
+write.table(alpha_Results_mle_final, file = "Simulation_randomization/alpha_Results_mle_final.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(alpha_Results_mle_final_randomization, file = "Simulation_randomization/alpha_Results_mle_final_randomization.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(alpha_Results_whittle_final, file = "Simulation_randomization/alpha_Results_whittle_final.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+
+write.table(beta_Results_mle_final, file = "Simulation_randomization/beta_Results_mle_final.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(beta_Results_mle_final_randomization, file = "Simulation_randomization/beta_Results_mle_final_randomization.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(beta_Results_whittle_final, file = "Simulation_randomization/beta_Results_whittle_final.txt", sep = "\t", row.names = FALSE, col.names = FALSE)
+
+
+
+" PYTHON CODE FOR RENDERING THE GRAPHS 
+
+
 import pandas as pd
 import matplotlib.pyplot as plt
-
 binlist = [0.125, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-# load the data from results_randomization_alpha.csv, results_randomization_beta.csv and results_randomization_mu.csv which are parsed using space as delimiter
-# N.B. each row corresponds to simulation results with binsize store in binlist
-# N.B. each column corresponds to whittle, mle_randomized, mle_not_randomized
-data_mu = pd.read_csv('results_randomization_mu.csv',  header=None, names=['whittle', 'mle_randomized', 'mle_not_randomized'], sep=' ')
-data_alpha = pd.read_csv('results_randomization_alpha.csv', header=None, names=['whittle', 'mle_randomized', 'mle_not_randomized'] , sep=' ')
-data_beta = pd.read_csv('results_randomization_beta.csv', header=None, names=['whittle', 'mle_randomized', 'mle_not_randomized'] , sep=' ')
+
+# load the data from mu_Results_mle_final_randomization.txt parsed with \t as separator and do so for alpha and beta
+mu_mle_randomized_results = pd.read_csv('Simulation_randomization/mu_Results_mle_final_randomization.txt', sep='\t', header=None)
+alpha_mle_randomized_results = pd.read_csv('Simulation_randomization/alpha_Results_mle_final_randomization.txt', sep='\t', header=None)
+beta_mle_randomized_results = pd.read_csv('Simulation_randomization/beta_Results_mle_final_randomization.txt', sep='\t', header=None)
+
+# load the data from mu_Results_whittle_final.txt parsed with \t as separator and do so for alpha and beta
+
+mu_whittle_results = pd.read_csv('Simulation_randomization/mu_Results_whittle_final.txt', sep='\t', header=None)
+alpha_whittle_results = pd.read_csv('Simulation_randomization/alpha_Results_whittle_final.txt', sep='\t', header=None)
+beta_whittle_results = pd.read_csv('Simulation_randomization/beta_Results_whittle_final.txt', sep='\t', header=None)
+
+# load the data from mu_Results_mle_final.txt parsed with \t as separator and do so for alpha and beta
+
+mu_mle_results = pd.read_csv('Simulation_randomization/mu_Results_mle_final.txt', sep='\t', header=None)
+alpha_mle_results = pd.read_csv('Simulation_randomization/alpha_Results_mle_final.txt', sep='\t', header=None)
+beta_mle_results = pd.read_csv('Simulation_randomization/beta_Results_mle_final.txt', sep='\t', header=None)
+
+# print('mu_mle_randomized_results')
+# print(mu_mle_randomized_results)
+
+# print('mu_whittle_results')
+# print(mu_whittle_results)
+
+# print('mu_mle_results')
+# print(mu_mle_results)
+
 
 # 3 subplots horizontally
 fig, ax = plt.subplots(3,1, figsize=(10,20))
 # plot results against binsize for mu 
-ax[0].plot(binlist, data_mu['whittle'],"o-", label='whittle',  color='midnightblue')
-ax[0].plot(binlist, data_mu['mle_randomized'], label='mle_randomized', marker='.', ls='-', color='darkorange')
-ax[0].plot(binlist, data_mu['mle_not_randomized'], label='mle_not_randomized', marker='.', ls='-', color='darkgreen')
+ax[0].plot(binlist, mu_whittle_results,"o-", label='whittle',  color='midnightblue')
+ax[0].plot(binlist, mu_mle_randomized_results, label='mle_randomized', marker='.', ls='-', color='darkorange')
+ax[0].plot(binlist, mu_mle_results, label='mle_not_randomized', marker='.', ls='-', color='darkgreen') 
 ax[0].set_xlabel('Binsize')
 ax[0].set_ylabel('MSE')
 ax[0].set_title('MSE for mu', fontsize=15)
 
 # plot results against binsize for alpha
-ax[1].plot(binlist, data_alpha['whittle'], "o-", label='whittle', color='midnightblue')
-ax[1].plot(binlist, data_alpha['mle_randomized'], label='mle_randomized', marker='.', ls='-', color='darkorange')
-ax[1].plot(binlist, data_alpha['mle_not_randomized'], label='mle_not_randomized', marker='.', ls='-', color='darkgreen')
+ax[1].plot(binlist, alpha_whittle_results, "o-", label='whittle', color='midnightblue')
+ax[1].plot(binlist, alpha_mle_randomized_results, label='mle_randomized', marker='.', ls='-', color='darkorange')
+ax[1].plot(binlist, alpha_mle_results, label='mle_not_randomized', marker='.', ls='-', color='darkgreen')
 ax[1].set_xlabel('Binsize')
 ax[1].set_ylabel('MSE')
 ax[1].set_title('MSE for alpha', fontsize=15)
 
 # plot results against binsize for beta
-ax[2].plot(binlist, data_beta['whittle'], "o-", label='whittle', marker='.', ls='-', color='midnightblue')
-ax[2].plot(binlist, data_beta['mle_randomized'], label='mle_randomized', marker='.', ls='-', color='darkorange')
-ax[2].plot(binlist, data_beta['mle_not_randomized'], label='mle_not_randomized', marker='.', ls='-', color='darkgreen')
+ax[2].plot(binlist, beta_whittle_results, "o-", label='whittle', marker='.', ls='-', color='midnightblue')
+ax[2].plot(binlist, beta_mle_randomized_results, label='mle_randomized', marker='.', ls='-', color='darkorange')
+ax[2].plot(binlist, alpha_mle_results, label='mle_not_randomized', marker='.', ls='-', color='darkgreen')
 ax[2].set_xlabel('Binsize')
 ax[2].set_ylabel('MSE')
 ax[2].set_title('MSE for beta', fontsize=15)
@@ -433,14 +468,11 @@ ax[0].set_yscale('log')
 ax[1].set_yscale('log')
 ax[2].set_yscale('log')
 
-fig.suptitle('MSE for against binsize for T = 1000 over 50 simulations', fontsize=16)
+fig.suptitle('MSE against binsize for T = 1000 over 200 simulations, (mu,alpha,beta) = (1,0.5,1)', fontsize=16)
 # show legend 
 ax[0].legend(loc='upper left')
 ax[1].legend(loc='upper left')
 ax[2].legend(loc='upper left')
 
 plt.show()
-"""
-
-
-
+"
